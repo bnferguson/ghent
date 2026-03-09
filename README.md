@@ -62,7 +62,7 @@ GHENT requests three OAuth scopes. Here's what each one does and why it's needed
 | Permission | OAuth Scope | Why |
 |---|---|---|
 | **Read, compose, and modify Gmail** | `gmail.modify` | Read notification emails, apply labels, and archive threads. This is the core of what GHENT does. |
-| **Manage Gmail labels** | `gmail.labels` | Create and manage the `GHENT/*` label hierarchy (reason labels, repo labels). |
+| **Manage Gmail labels** | `gmail.labels` | Create and manage the label hierarchy (reason labels, repo labels). |
 | **Connect to an external service** | `script.external_request` | The muter calls GitHub's unsubscribe URL (`github.com/notifications/unsubscribe/...`) when you mute a thread in Gmail. No data is sent — it's a simple GET request to unsubscribe. |
 | **Manage triggers** | `script.scriptapp` | Create and delete time-based triggers so GHENT runs automatically every 5 minutes. |
 
@@ -70,11 +70,13 @@ No org-level access is required. GHENT runs entirely in your personal Google acc
 
 ## Configuration
 
-The top-level label prefix defaults to `GitHub` (so labels are `GitHub/Mention`, `GitHub/Repos/my-repo`, etc.). To change it, set the `label_prefix` Script Property:
+The top-level label prefix defaults to `GHENT` (so labels are `GHENT/Mention`, `GHENT/Repos/my-repo`, etc.). To change it, set the `label_prefix` Script Property:
 
-1. In the Apps Script editor, go to **Project Settings** (gear icon)
-2. Scroll to **Script Properties**
-3. Add a property: key `label_prefix`, value whatever you want (e.g., `GHENT`, `GH`, `Notifications`)
+1. In the Apps Script editor, click the **gear icon** (Project Settings) in the left sidebar
+2. Scroll down to **Script Properties**
+3. Click **Add script property**
+4. Set key to `label_prefix`, value to whatever you want (e.g., `GitHub`, `GH`, `Notifications`)
+5. Click **Save**
 
 Other settings can be changed in `src/config.js`:
 

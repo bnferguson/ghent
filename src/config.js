@@ -6,7 +6,7 @@ var CONFIG = {
   // Top-level Gmail label. Set via Script Properties key "label_prefix",
   // or change the default here. Labels will be created as:
   //   <prefix>/Mention, <prefix>/Repos/my-repo, etc.
-  LABEL_PREFIX: PropertiesService.getUserProperties().getProperty('label_prefix') || 'GitHub',
+  LABEL_PREFIX: PropertiesService.getUserProperties().getProperty('label_prefix') || 'GHENT',
   SHOULD_ARCHIVE: true,
   QUERY: 'in:inbox from:notifications@github.com',
   MUTE_QUERY: 'is:muted from:notifications@github.com',
