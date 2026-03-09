@@ -1,6 +1,6 @@
 # GHENT — GitHub Email Notifications Tamer
 
-A Google Apps Script that tames your GitHub notification emails by automatically labeling them by reason and repo, then archiving them out of your inbox. Spiritual successor to [OctoGAS](https://github.com/btoews/OctoGAS).
+A Google Apps Script that tames your GitHub notification emails by automatically labeling them by reason and repo, then archiving them out of your inbox. Spiritual successor to the sadly defunct [OctoGAS](https://github.com/btoews/OctoGAS).
 
 ## What it does
 
