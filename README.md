@@ -20,6 +20,8 @@ Labels are applied at the **thread level**. A PR thread will accumulate bot comm
 
 Each thread also gets a **repo label** like `GHENT/Repos/my-repo`, so you can triage by project.
 
+> `GHENT` is the default label prefix — you can change it to whatever you want (e.g., `GitHub`, `GH`). See [Configuration](#configuration).
+
 When a thread gets new activity and lands back in your inbox, GHENT re-evaluates it — if the reason upgraded (e.g., you were just subscribed but now you got @mentioned), the old reason label is replaced.
 
 **Muter** — When you mute a GitHub thread in Gmail, GHENT automatically unsubscribes you from the GitHub notification thread, then unmutes the Gmail thread. This way, if someone @mentions you again later, GitHub will re-subscribe you and you'll get the email.
