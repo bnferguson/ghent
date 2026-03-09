@@ -72,29 +72,18 @@ No org-level access is required. GHENT runs entirely in your personal Google acc
 
 ## Configuration
 
-The top-level label prefix defaults to `GHENT` (so labels are `GHENT/Mention`, `GHENT/Repos/my-repo`, etc.). To change it, set the `label_prefix` Script Property:
+All settings are managed via **Script Properties** in the Apps Script editor:
 
-1. In the Apps Script editor, click the **gear icon** (Project Settings) in the left sidebar
+1. Click the **gear icon** (Project Settings) in the left sidebar
 2. Scroll down to **Script Properties**
-3. Click **Add script property**
-4. Set key to `label_prefix`, value to whatever you want (e.g., `GitHub`, `GH`, `Notifications`)
-5. Click **Save**
+3. Click **Add script property**, set the key and value, then **Save**
 
-Other settings can be changed in `src/config.js`:
-
-```js
-const CONFIG = {
-  SHOULD_ARCHIVE: true,            // Set to false to label without archiving
-  BATCH_SIZE: 50,                  // Threads per batch (50 is a safe default)
-  TRIGGER_INTERVAL_MINUTES: 5,     // How often the trigger runs
-};
-```
-
-After changing config, push to GAS:
-
-```bash
-npm run push
-```
+| Property | Default | Description |
+|---|---|---|
+| `label_prefix` | `GHENT` | Top-level Gmail label (e.g., `GitHub`, `GH`, `Notifications`) |
+| `should_archive` | `true` | Set to `false` to label without archiving |
+| `batch_size` | `50` | Threads per batch (50 is a safe default) |
+| `trigger_interval_minutes` | `5` | How often the trigger runs |
 
 ## Useful functions
 
@@ -106,6 +95,7 @@ Run these from the Apps Script editor:
 | `uninstall` | Remove all GHENT triggers |
 | `run` | Process your inbox right now |
 | `resetLastRun` | Clear the timestamp so the next run processes all inbox threads |
+| `migrateLabels` | Rename all labels from one prefix to another. Set `migrate_from` Script Property to the old prefix; `migrate_to` defaults to the current `label_prefix`. |
 
 ## Development
 

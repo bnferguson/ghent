@@ -1,22 +1,19 @@
 // GHENT Configuration
-// Modify these values via Script Properties in the GAS editor,
-// or change defaults here before pushing.
+// All user-facing settings are read from Script Properties in the GAS editor.
+// See README for setup instructions.
 
-var CONFIG = {
-  // Top-level Gmail label. Set via Script Properties key "label_prefix",
-  // or change the default here. Labels will be created as:
-  //   <prefix>/Mention, <prefix>/Repos/my-repo, etc.
-  LABEL_PREFIX: PropertiesService.getUserProperties().getProperty('label_prefix') || 'GHENT',
-  SHOULD_ARCHIVE: true,
-  QUERY: 'in:inbox from:notifications@github.com',
-  MUTE_QUERY: 'is:muted from:notifications@github.com',
-  // Max threads to process per run (GAS has a 6-min execution limit)
-  BATCH_SIZE: 50,
-  // Property key for tracking last processed timestamp
-  LAST_RUN_KEY: 'ghent_last_run_timestamp',
-  // Trigger interval in minutes
-  TRIGGER_INTERVAL_MINUTES: 5,
-};
+var CONFIG = (function() {
+  var props = PropertiesService.getUserProperties();
+  return {
+    LABEL_PREFIX: props.getProperty('label_prefix') || 'GHENT',
+    SHOULD_ARCHIVE: props.getProperty('should_archive') !== 'false',
+    BATCH_SIZE: parseInt(props.getProperty('batch_size'), 10) || 50,
+    TRIGGER_INTERVAL_MINUTES: parseInt(props.getProperty('trigger_interval_minutes'), 10) || 5,
+    QUERY: 'in:inbox from:notifications@github.com',
+    MUTE_QUERY: 'is:muted from:notifications@github.com',
+    LAST_RUN_KEY: 'ghent_last_run_timestamp',
+  };
+})();
 
 // Notification reason priority (lower = higher priority).
 // When a thread has multiple reasons, the highest priority wins.
