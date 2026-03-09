@@ -132,4 +132,4 @@ Processing happens in batches of 50 threads with a 5-minute safety valve to stay
 
 ## Credits
 
-Inspired by [OctoGAS](https://github.com/btoews/OctoGAS) by [@btoews](https://github.com/btoews).
+Shamelessly adapted from and inspired by [OctoGAS](https://github.com/btoews/OctoGAS) by [@btoews](https://github.com/btoews).
