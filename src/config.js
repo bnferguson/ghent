@@ -3,7 +3,7 @@
 // See README for setup instructions.
 
 var CONFIG = (function() {
-  var props = PropertiesService.getUserProperties();
+  var props = PropertiesService.getScriptProperties();
   return {
     LABEL_PREFIX: props.getProperty('label_prefix') || 'GHENT',
     SHOULD_ARCHIVE: props.getProperty('should_archive') !== 'false',

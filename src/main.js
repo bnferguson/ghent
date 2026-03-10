@@ -41,7 +41,7 @@ function uninstall() {
  * Useful for initial setup or if you want to re-process everything.
  */
 function resetLastRun() {
-  PropertiesService.getUserProperties().deleteProperty(CONFIG.LAST_RUN_KEY);
+  PropertiesService.getScriptProperties().deleteProperty(CONFIG.LAST_RUN_KEY);
   Logger.log('GHENT: Reset last run timestamp — next run will process all inbox threads');
 }
 
@@ -54,7 +54,7 @@ function resetLastRun() {
  *   migrate_to    — new prefix, or omit to use current label_prefix
  */
 function migrateLabels() {
-  var props = PropertiesService.getUserProperties();
+  var props = PropertiesService.getScriptProperties();
   var oldPrefix = props.getProperty('migrate_from');
   var newPrefix = props.getProperty('migrate_to') || CONFIG.LABEL_PREFIX;
 

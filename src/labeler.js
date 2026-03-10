@@ -57,7 +57,7 @@ function labelAndArchive() {
   }
 
   // Update last run timestamp
-  var props = PropertiesService.getUserProperties();
+  var props = PropertiesService.getScriptProperties();
   props.setProperty(CONFIG.LAST_RUN_KEY, new Date().toISOString());
 
   Logger.log('GHENT: Done. Processed ' + totalProcessed + ' threads total');
@@ -110,7 +110,7 @@ function removeStaleReasonLabels(thread) {
 function buildQuery() {
   var query = CONFIG.QUERY;
 
-  var props = PropertiesService.getUserProperties();
+  var props = PropertiesService.getScriptProperties();
   var lastRun = props.getProperty(CONFIG.LAST_RUN_KEY);
 
   if (lastRun) {
