@@ -4,7 +4,7 @@ A Google Apps Script that tames your GitHub notification emails by automatically
 
 ## What it does
 
-**Labeler** — Every 5 minutes, GHENT scans your inbox for GitHub notification emails, applies labels, and archives them. You triage by label instead of wading through a noisy inbox.
+**Labeler** — On a configurable interval (default: every 5 minutes), GHENT scans your inbox for GitHub notification emails, applies labels, and archives them. You triage by label instead of wading through a noisy inbox.
 
 Labels are applied at the **thread level**. A PR thread will accumulate bot comments, push notifications, review requests, and mentions over its lifetime. GHENT scans all messages in the thread and applies the **highest-priority reason** as the label:
 
@@ -66,7 +66,7 @@ GHENT requests three OAuth scopes. Here's what each one does and why it's needed
 | **Read, compose, and modify Gmail** | `gmail.modify` | Read notification emails, apply labels, and archive threads. This is the core of what GHENT does. |
 | **Manage Gmail labels** | `gmail.labels` | Create and manage the label hierarchy (reason labels, repo labels). |
 | **Connect to an external service** | `script.external_request` | The muter calls GitHub's unsubscribe URL (`github.com/notifications/unsubscribe/...`) when you mute a thread in Gmail. No data is sent — it's a simple GET request to unsubscribe. |
-| **Manage triggers** | `script.scriptapp` | Create and delete time-based triggers so GHENT runs automatically every 5 minutes. |
+| **Manage triggers** | `script.scriptapp` | Create and delete time-based triggers so GHENT runs automatically on your configured interval. |
 
 No org-level access is required. GHENT runs entirely in your personal Google account.
 
@@ -83,7 +83,22 @@ All settings are managed via **Script Properties** in the Apps Script editor:
 | `label_prefix` | `GHENT` | Top-level Gmail label (e.g., `GitHub`, `GH`, `Notifications`) |
 | `should_archive` | `true` | Set to `false` to label without archiving |
 | `batch_size` | `50` | Threads per batch (50 is a safe default) |
-| `trigger_interval_minutes` | `5` | How often the trigger runs |
+| `trigger_interval_minutes` | `5` | How often the trigger runs (minimum `1`) |
+
+### Changing settings
+
+Script Properties are read when the script starts each run, so most changes take effect immediately — the next run will pick them up.
+
+The exception is `trigger_interval_minutes`: changing it only affects new triggers. After updating it, run the `install` function to recreate the trigger with the new interval.
+
+### Deploying changes
+
+If you modify the source code locally:
+
+1. Push to Apps Script: `npm run push`
+2. If you changed trigger-related settings, run `install` from the Apps Script editor to recreate the trigger
+
+If you edit code directly in the Apps Script editor, changes take effect on the next trigger run — no deploy step needed.
 
 ## Useful functions
 
