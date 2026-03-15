@@ -20,7 +20,7 @@ function createGasContext(overrides = {}) {
       moveThreadsToArchive: () => {},
     },
     PropertiesService: {
-      getUserProperties: () => ({
+      getScriptProperties: () => ({
         getProperty: () => null,
         setProperty: () => {},
         deleteProperty: () => {},
