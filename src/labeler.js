@@ -65,7 +65,7 @@ function labelAndArchive() {
 
 /**
  * Determine which labels to apply to a thread.
- * Returns an array of full label paths like ["GHENT/Mention", "GHENT/Repos/soffi-main"].
+ * Returns an array of full label paths like ["GHENT/Mention", "GHENT/Repos/soffi-ai/soffi-main"].
  */
 function getLabelsForThread(thread) {
   var labels = [];
@@ -79,7 +79,7 @@ function getLabelsForThread(thread) {
   // Repo label
   var repo = getThreadRepo(thread);
   if (repo) {
-    labels.push(prefix + '/Repos/' + repo.repo);
+    labels.push(prefix + '/Repos/' + repo.org + '/' + repo.repo);
   }
 
   return labels;

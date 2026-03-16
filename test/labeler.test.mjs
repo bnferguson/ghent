@@ -23,13 +23,13 @@ describe('labeler', () => {
     it('returns reason and repo labels for a mention', () => {
       const labels = env.getLabelsForThread(makeThread('mention', '[Soffi-ai/soffi-main] fix: Bug (PR #1)'));
       expect(labels).toContain(`${prefix}/Mention`);
-      expect(labels).toContain(`${prefix}/Repos/soffi-main`);
+      expect(labels).toContain(`${prefix}/Repos/Soffi-ai/soffi-main`);
     });
 
     it('returns review_requested label', () => {
       const labels = env.getLabelsForThread(makeThread('review_requested', '[my-org/my-repo] feat: Thing (PR #5)'));
       expect(labels).toContain(`${prefix}/Review Requested`);
-      expect(labels).toContain(`${prefix}/Repos/my-repo`);
+      expect(labels).toContain(`${prefix}/Repos/my-org/my-repo`);
     });
 
     it('maps author reason to Author label', () => {
@@ -58,7 +58,7 @@ describe('labeler', () => {
     it('respects custom label prefix', () => {
       env = loadGasEnvironment({
         PropertiesService: {
-          getUserProperties: () => ({
+          getScriptProperties: () => ({
             getProperty: (key) => key === 'label_prefix' ? 'MyGH' : null,
             setProperty: () => {},
             deleteProperty: () => {},
@@ -67,7 +67,7 @@ describe('labeler', () => {
       });
       const labels = env.getLabelsForThread(makeThread('mention', '[org/repo] Something'));
       expect(labels).toContain('MyGH/Mention');
-      expect(labels).toContain('MyGH/Repos/repo');
+      expect(labels).toContain('MyGH/Repos/org/repo');
     });
   });
 
@@ -79,7 +79,7 @@ describe('labeler', () => {
     it('adds after: filter when last run exists', () => {
       env = loadGasEnvironment({
         PropertiesService: {
-          getUserProperties: () => ({
+          getScriptProperties: () => ({
             getProperty: (key) => key === 'ghent_last_run_timestamp' ? '2026-03-08T12:00:00Z' : null,
             setProperty: () => {},
             deleteProperty: () => {},
