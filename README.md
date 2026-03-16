@@ -111,6 +111,7 @@ Run these from the Apps Script editor:
 | `run` | Process your inbox right now |
 | `resetLastRun` | Clear the timestamp so the next run processes all inbox threads |
 | `migrateLabels` | Rename all labels from one prefix to another. Set `migrate_from` Script Property to the old prefix; `migrate_to` defaults to the current `label_prefix`. |
+| `migrateRepoLabels` | Move flat repo labels (`Repos/my-repo`) to owner-nested labels (`Repos/org/my-repo`) by reading the org from each thread's subject. Safe to run multiple times. |
 
 ## Development
 
