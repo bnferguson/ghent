@@ -114,18 +114,25 @@ function migrateLabels() {
  */
 function migrateRepoLabels() {
   var repoPrefix = CONFIG.LABEL_PREFIX + '/Repos/';
+
+  Logger.log('GHENT: Fetching labels...');
   var allLabels = GmailApp.getUserLabels();
+  Logger.log('GHENT: Found ' + allLabels.length + ' total labels');
 
   var flatRepoLabels = allLabels.filter(function(l) {
     var name = l.getName();
     if (name.indexOf(repoPrefix) !== 0) return false;
-    // Only flat labels — no additional slashes after Repos/
     var rest = name.substring(repoPrefix.length);
     return rest.length > 0 && rest.indexOf('/') === -1;
   });
 
+  Logger.log('GHENT: Found ' + flatRepoLabels.length + ' flat repo labels to migrate');
+  for (var x = 0; x < flatRepoLabels.length; x++) {
+    Logger.log('  - ' + flatRepoLabels[x].getName());
+  }
+
   if (flatRepoLabels.length === 0) {
-    Logger.log('GHENT: No flat repo labels found — nothing to migrate');
+    Logger.log('GHENT: Nothing to migrate');
     return;
   }
 
@@ -137,56 +144,93 @@ function migrateRepoLabels() {
     var oldName = oldLabel.getName();
     var repoName = oldName.substring(repoPrefix.length);
 
-    var threads = oldLabel.getThreads();
+    Logger.log('GHENT: Getting threads for ' + oldName + '...');
+    Utilities.sleep(1000);
+
+    var threads;
+    try {
+      threads = oldLabel.getThreads(0, 10);
+    } catch (e) {
+      Logger.log('GHENT: Error getting threads for ' + oldName + ': ' + e.message);
+      Logger.log('GHENT: Waiting 5s and retrying...');
+      Utilities.sleep(5000);
+      try {
+        threads = oldLabel.getThreads(0, 10);
+      } catch (e2) {
+        Logger.log('GHENT: Still failing for ' + oldName + ', skipping: ' + e2.message);
+        continue;
+      }
+    }
+
     if (threads.length === 0) {
-      oldLabel.deleteLabel();
-      Logger.log('Deleted empty label: ' + oldName);
+      try {
+        oldLabel.deleteLabel();
+        Logger.log('GHENT: Deleted empty label: ' + oldName);
+      } catch (e) {
+        Logger.log('GHENT: Could not delete empty label ' + oldName + ': ' + e.message);
+      }
       continue;
     }
 
-    // Pre-fetch messages for efficiency
-    GmailApp.getMessagesForThreads(threads);
+    Logger.log('GHENT: Got ' + threads.length + ' threads from ' + oldName);
 
     // Group threads by org (parsed from subject)
     var orgMap = {};
     var noOrg = [];
 
     for (var j = 0; j < threads.length; j++) {
-      var repo = getRepoFromSubject(threads[j].getFirstMessageSubject());
+      var subject = threads[j].getFirstMessageSubject();
+      var repo = getRepoFromSubject(subject);
       if (repo && repo.org) {
         if (!orgMap[repo.org]) orgMap[repo.org] = [];
         orgMap[repo.org].push(threads[j]);
       } else {
         noOrg.push(threads[j]);
+        Logger.log('GHENT: Could not parse org from subject: ' + subject);
       }
     }
 
-    // Move threads to new org-nested labels
+    // Move threads to new org-nested labels one at a time
     var orgs = Object.keys(orgMap);
     for (var k = 0; k < orgs.length; k++) {
       var newName = repoPrefix + orgs[k] + '/' + repoName;
+      Logger.log('GHENT: Moving threads to ' + newName);
       var newLabel = findOrCreateLabel(newName);
       var orgThreads = orgMap[orgs[k]];
 
-      for (var b = 0; b < orgThreads.length; b += 100) {
-        newLabel.addToThreads(orgThreads.slice(b, b + 100));
+      for (var b = 0; b < orgThreads.length; b++) {
+        try {
+          newLabel.addToThread(orgThreads[b]);
+        } catch (e) {
+          Logger.log('GHENT: Error adding thread ' + b + ': ' + e.message);
+          Utilities.sleep(2000);
+          newLabel.addToThread(orgThreads[b]);
+        }
+        Utilities.sleep(200);
       }
 
       migrated += orgThreads.length;
-      Logger.log('Migrated ' + orgThreads.length + ' threads: ' + oldName + ' → ' + newName);
+      Logger.log('GHENT: Migrated ' + orgThreads.length + ' threads: ' + oldName + ' → ' + newName);
     }
 
     if (noOrg.length > 0) {
       skipped += noOrg.length;
-      Logger.log('Skipped ' + noOrg.length + ' threads in ' + oldName + ' (could not determine org from subject)');
     }
 
     // Delete old label only if all threads were migrated
     if (noOrg.length === 0) {
-      oldLabel.deleteLabel();
-      Logger.log('Deleted label: ' + oldName);
+      Utilities.sleep(2000);
+      try {
+        oldLabel.deleteLabel();
+        Logger.log('GHENT: Deleted label: ' + oldName);
+      } catch (e) {
+        Logger.log('GHENT: Could not delete ' + oldName + ' (threads moved successfully): ' + e.message);
+      }
     }
+
+    // Pause between labels
+    Utilities.sleep(2000);
   }
 
-  Logger.log('Repo label migration complete: ' + migrated + ' threads moved, ' + skipped + ' skipped');
+  Logger.log('GHENT: Repo label migration complete: ' + migrated + ' threads moved, ' + skipped + ' skipped');
 }
