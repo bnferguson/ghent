@@ -104,3 +104,89 @@ function migrateLabels() {
   Logger.log('Migration complete: ' + migrated + ' threads moved, ' + deleted + ' old labels deleted');
   Logger.log('You can now remove the migrate_from and migrate_to Script Properties');
 }
+
+/**
+ * Migrate flat repo labels (GHENT/Repos/my-repo) to owner-nested labels
+ * (GHENT/Repos/org/my-repo) by reading the org from each thread's subject.
+ *
+ * Run from the editor. Safe to run multiple times — skips labels that
+ * already have the owner/repo structure.
+ */
+function migrateRepoLabels() {
+  var repoPrefix = CONFIG.LABEL_PREFIX + '/Repos/';
+  var allLabels = GmailApp.getUserLabels();
+
+  var flatRepoLabels = allLabels.filter(function(l) {
+    var name = l.getName();
+    if (name.indexOf(repoPrefix) !== 0) return false;
+    // Only flat labels — no additional slashes after Repos/
+    var rest = name.substring(repoPrefix.length);
+    return rest.length > 0 && rest.indexOf('/') === -1;
+  });
+
+  if (flatRepoLabels.length === 0) {
+    Logger.log('GHENT: No flat repo labels found — nothing to migrate');
+    return;
+  }
+
+  var migrated = 0;
+  var skipped = 0;
+
+  for (var i = 0; i < flatRepoLabels.length; i++) {
+    var oldLabel = flatRepoLabels[i];
+    var oldName = oldLabel.getName();
+    var repoName = oldName.substring(repoPrefix.length);
+
+    var threads = oldLabel.getThreads();
+    if (threads.length === 0) {
+      oldLabel.deleteLabel();
+      Logger.log('Deleted empty label: ' + oldName);
+      continue;
+    }
+
+    // Pre-fetch messages for efficiency
+    GmailApp.getMessagesForThreads(threads);
+
+    // Group threads by org (parsed from subject)
+    var orgMap = {};
+    var noOrg = [];
+
+    for (var j = 0; j < threads.length; j++) {
+      var repo = getRepoFromSubject(threads[j].getFirstMessageSubject());
+      if (repo && repo.org) {
+        if (!orgMap[repo.org]) orgMap[repo.org] = [];
+        orgMap[repo.org].push(threads[j]);
+      } else {
+        noOrg.push(threads[j]);
+      }
+    }
+
+    // Move threads to new org-nested labels
+    var orgs = Object.keys(orgMap);
+    for (var k = 0; k < orgs.length; k++) {
+      var newName = repoPrefix + orgs[k] + '/' + repoName;
+      var newLabel = findOrCreateLabel(newName);
+      var orgThreads = orgMap[orgs[k]];
+
+      for (var b = 0; b < orgThreads.length; b += 100) {
+        newLabel.addToThreads(orgThreads.slice(b, b + 100));
+      }
+
+      migrated += orgThreads.length;
+      Logger.log('Migrated ' + orgThreads.length + ' threads: ' + oldName + ' → ' + newName);
+    }
+
+    if (noOrg.length > 0) {
+      skipped += noOrg.length;
+      Logger.log('Skipped ' + noOrg.length + ' threads in ' + oldName + ' (could not determine org from subject)');
+    }
+
+    // Delete old label only if all threads were migrated
+    if (noOrg.length === 0) {
+      oldLabel.deleteLabel();
+      Logger.log('Deleted label: ' + oldName);
+    }
+  }
+
+  Logger.log('Repo label migration complete: ' + migrated + ' threads moved, ' + skipped + ' skipped');
+}
