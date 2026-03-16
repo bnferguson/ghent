@@ -18,7 +18,7 @@ Labels are applied at the **thread level**. A PR thread will accumulate bot comm
 | 6 | `GHENT/CI` | CI activity |
 | 7 | `GHENT/Subscribed` | You're watching the repo or manually subscribed |
 
-Each thread also gets a **repo label** like `GHENT/Repos/my-repo`, so you can triage by project.
+Each thread also gets a **repo label** like `GHENT/Repos/my-org/my-repo`, so you can triage by project and org.
 
 > `GHENT` is the default label prefix — you can change it to whatever you want (e.g., `GitHub`, `GH`). See [Configuration](#configuration).
 
